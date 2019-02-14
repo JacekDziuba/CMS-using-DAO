@@ -1,4 +1,6 @@
-package pl.coderslab;
+package pl.coderslab.Classes;
+
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -6,16 +8,20 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-import org.mindrot.jbcrypt.BCrypt;
-
 public class User {
+
+	// == fields ==
+
 	private int id;
 	private int user_group_id;
 	private String username;
 	private String password;
 	private String email;
 
+	// == constructors ==
+
 	public User() {}
+
 	public User(int user_group_id, String username, String email, String password) {
 		this.user_group_id = user_group_id;
 		this.username = username;
@@ -29,12 +35,15 @@ public class User {
 	public String getPassword() {return password;}
 	public String getEmail() {return email;}
 	public int getUser_group_id() {return user_group_id;}
+
 	//SETTERS
 	public void setUsername(String username) {this.username = username;}
 	public void setEmail(String email) {this.email = email;}
 	public void setPassword(String password) {this.password = BCrypt.hashpw(password, BCrypt.gensalt());}
 	public void setUser_group_id(int user_group_id) {this.user_group_id = user_group_id;}
-	
+
+	// == methods ==
+
 	public void saveToDB(Connection conn) throws SQLException {
 		if (this.id == 0) {
 			String sql = "INSERT INTO Users(username, email, password, user_group_id) VALUES (?, ?, ?, ?)";
@@ -62,6 +71,7 @@ public class User {
 			preparedStatement.executeUpdate();
 		}
 	}
+
 	public void delete(Connection conn) throws SQLException {
 		if (this.id != 0) {
 			String sql = "DELETE FROM Users WHERE id= ?";
@@ -72,6 +82,7 @@ public class User {
 			this.id = 0;
 		}
 	}
+
 	static public User loadUserById(Connection conn, int id) throws SQLException {
 		String sql = "SELECT * FROM Users where id=?";
 		PreparedStatement preparedStatement;
@@ -89,6 +100,7 @@ public class User {
 		}
 		return null;
 	}
+
 	static public User[] loadAllUsers(Connection conn) throws SQLException {
 		ArrayList<User> users = new ArrayList<User>();
 		String sql = "SELECT * FROM Users";
@@ -108,6 +120,7 @@ public class User {
 		uArray = users.toArray(uArray);
 		return uArray;
 	}
+
 	static public User[] loadAllByGrupId(Connection conn, int group_id) throws SQLException {
 		ArrayList<User> users = new ArrayList<User>();
 		String sql = "SELECT * FROM users WHERE user_group_id=? ";
@@ -127,5 +140,6 @@ public class User {
 		User[] uArray = new User[users.size()];
 		uArray = users.toArray(uArray);
 		return uArray;
-	}}
+	}
+}
 

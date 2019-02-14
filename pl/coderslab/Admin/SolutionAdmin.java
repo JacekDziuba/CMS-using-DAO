@@ -1,4 +1,8 @@
-package pl.coderslab;
+package pl.coderslab.Admin;
+
+import pl.coderslab.Classes.User;
+import pl.coderslab.Solution;
+import pl.coderslab.User_group;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
