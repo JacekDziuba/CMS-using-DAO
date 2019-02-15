@@ -2,10 +2,7 @@ package pl.coderslab.Classes;
 
 import org.mindrot.jbcrypt.BCrypt;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 
 public class User {
@@ -29,6 +26,24 @@ public class User {
 		this.setPassword(password);
 	}
 
+    // == constants ==
+
+    public static final String TABLE_USERS = "users";
+    public static final String COLUMN_USER_GROUP_ID = "user_group_id";
+    public static final String COLUMN_USER_USERNAME = "username";
+    public static final String COLUMN_USER_PASSWORD = "password";
+    public static final String COLUMN_USER_EMAIL = "email";
+
+    public static final String INSERT_INTO_USERS = "INSERT INTO " + TABLE_USERS + "(" +
+            COLUMN_USER_USERNAME + ", " +
+            COLUMN_USER_EMAIL + ", " +
+            COLUMN_USER_PASSWORD + ", " +
+            COLUMN_USER_GROUP_ID + ") VALUES (?, ?, ?, ?)";
+
+    // == fields ==
+
+    private PreparedStatement insertUser;
+
 	//GETTERS
 	public int getId() {return id;}
 	public String getUsername() {return username;}
@@ -45,20 +60,21 @@ public class User {
 	// == methods ==
 
 	public void saveToDB(Connection conn) throws SQLException {
-		if (this.id == 0) {
-			String sql = "INSERT INTO Users(username, email, password, user_group_id) VALUES (?, ?, ?, ?)";
-			String generatedColumns[] = { "ID" };
-			PreparedStatement preparedStatement;
-			preparedStatement = conn.prepareStatement(sql, generatedColumns);
-			preparedStatement.setString(1, this.username);
-			preparedStatement.setString(2, this.email);
-			preparedStatement.setString(3, this.password);
-			preparedStatement.setInt(4, this.user_group_id);
-			preparedStatement.executeUpdate();
-			ResultSet rs = preparedStatement.getGeneratedKeys();
-			if (rs.next()) {
-				this.id = rs.getInt(1);
-			}
+        if (this.id == 0) {
+            String sql = INSERT_INTO_USERS;
+
+            insertUser = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            insertUser.setString(1, this.username);
+            insertUser.setString(2, this.email);
+            insertUser.setString(3, this.password);
+            insertUser.setInt(4, this.user_group_id);
+            int affectedRows = insertUser.executeUpdate();
+
+            ResultSet rs = insertUser.getGeneratedKeys();
+            if (rs.next()) {
+                this.id = rs.getInt(1);
+            }
+
 		} else {
 			String sql = "UPDATE Users SET username=?, email=?, password=?, user_group_id=? where id=?";
 			PreparedStatement preparedStatement;
