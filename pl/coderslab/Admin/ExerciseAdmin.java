@@ -1,6 +1,6 @@
 package pl.coderslab.Admin;
 
-import pl.coderslab.Exercise;
+import pl.coderslab.Classes.Exercise;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -18,13 +18,14 @@ public class ExerciseAdmin {
             runProgram(conn);
 
         } catch (SQLException e) {
-            System.out.println("Couldn't make a connection" + e.getMessage());
+            System.out.println("Something went wrong " + e.getMessage());
+            System.out.println(e.getStackTrace());
 		}
 	}
 
     // == constants ==
 
-    public static final String CONNECTION_STRING = "jdbc:mysql://localhost:3306/users?useSSL=false";
+    public static final String CONNECTION_STRING = "jdbc:mysql://localhost:3306/warsztaty_2?useSSL=false";
     public static final String USER_NAME = "root";
     public static final String PASSWORD = "coderslab";
 
@@ -62,12 +63,10 @@ public class ExerciseAdmin {
                     break;
 
                 case 2:
-                    System.out.println("Enter exercise data: \n");
-
-                    System.out.println("Exercise title: \n");
+                    System.out.println("Please add new exercise title: \n");
                     String newTitle = scanner.nextLine();
 
-                    System.out.println("Exercise description: \n");
+                    System.out.println("Please add new exercise description: \n");
                     String newDescription = scanner.nextLine();
 
                     Exercise newExercise = new Exercise(newTitle, newDescription);
@@ -75,30 +74,28 @@ public class ExerciseAdmin {
                     break;
 
                 case 3:
-                    System.out.println("Enter exercise data: \n");
-
-                    System.out.println("Exercise ID: \n");
+                    System.out.println("Please enter exercise ID for update: \n");
                     int exerciseId = scanner.nextInt();
 
                     scanner.nextLine();
-                    System.out.println("Exercise title: \n");
-                    String newTitle1 = scanner.nextLine();
+                    System.out.println("Please update the exercise title: \n");
+                    String editedTitle = scanner.nextLine();
 
-                    System.out.println("Exercise description: \n");
-                    String newDescription1 = scanner.nextLine();
+                    System.out.println("Please update the exercise description: \n");
+                    String editedDescription = scanner.nextLine();
 
                     Exercise editedExercise = Exercise.loadExerciseById(conn, exerciseId);
-                    editedExercise.setTitle(newTitle1);
-                    editedExercise.setDescription(newDescription1);
+                    editedExercise.setTitle(editedTitle);
+                    editedExercise.setDescription(editedDescription);
                     editedExercise.saveToDB(conn);
                     break;
 
                 case 4:
-                    System.out.println("Enter exercise ID: ");
-                    int exerciseId1 = scanner.nextInt();
+                    System.out.println("Please enter exercise ID for deletion: ");
+                    int exerciseToDeleteId = scanner.nextInt();
 
-                    Exercise editedExercise1 = Exercise.loadExerciseById(conn, exerciseId1);
-                    editedExercise1.delete(conn);
+                    Exercise exerciseToDelete = Exercise.loadExerciseById(conn, exerciseToDeleteId);
+                    exerciseToDelete.delete(conn);
                     break;
 
                 case 5:
@@ -110,18 +107,22 @@ public class ExerciseAdmin {
     }
 
 	public static void displayAllExercises(Connection conn) throws SQLException {
-		System.out.println("List of all exercises: ");
 		Exercise[] array = Exercise.loadAllExercise(conn);
-		for (int i = 0; i < array.length; i++) {
-			System.out.println("Exercise ID: " + array[i].getId());
-			System.out.println("Exercise title: " + array[i].getTitle());
-			System.out.println("Exercise description: " + array[i].getDescription());
-			}
+        if (array.length == 0) {
+            System.out.println("No exercises available.");
+        } else {
+            System.out.println("List of all exercises: ");
+            for (int i = 0; i < array.length; i++) {
+                System.out.println("Exercise ID: " + array[i].getId());
+                System.out.println("Exercise title: " + array[i].getTitle());
+                System.out.println("Exercise description: " + array[i].getDescription());
+            }
+        }
 	}
 
 // CREATE TABLE User_group (id int(11) AUTO_INCREMENT PRIMARY KEY, name varchar(255));
 // CREATE TABLE Users (id bigint(20) AUTO_INCREMENT PRIMARY KEY, username varchar(255), email varchar(255) UNIQUE, password varchar(245), user_group_id int(11), FOREIGN KEY(user_group_id) REFERENCES User_group(id));
-// CREATE TABLE Solution(id int(11) AUTO_INCREMENT PRIMARY KEY, created DATETIME, updated DATETIME, description TEXT, exercise int(11), users_id bigint(20), FOREIGN KEY(exercise) REFERENCES Exercise(id), FOREIGN KEY(users_id) REFERENCES Users(id));
 // CREATE TABLE Exercise(id int(11) AUTO_INCREMENT PRIMARY KEY, title varchar(255), description TEXT);
+// CREATE TABLE Solution(id int(11) AUTO_INCREMENT PRIMARY KEY, created DATETIME, updated DATETIME, description TEXT, exercise int(11), users_id bigint(20), FOREIGN KEY(exercise) REFERENCES Exercise(id), FOREIGN KEY(users_id) REFERENCES Users(id));
 
 }
